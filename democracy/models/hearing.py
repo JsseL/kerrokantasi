@@ -13,7 +13,7 @@ from reversion import revisions
 from democracy.models.comment import recache_on_save
 from democracy.utils.hmac_hash import get_hmac_b64_encoded
 
-from .base import Commentable, StringIdBaseModel
+from .base import Commentable, StringIdBaseModel, Organization
 from .comment import BaseComment
 from .images import BaseImage
 
@@ -27,7 +27,11 @@ class Hearing(Commentable, StringIdBaseModel):
     borough = models.CharField(verbose_name=_('borough'), blank=True, default='', max_length=200)
     servicemap_url = models.CharField(verbose_name=_('service map URL'), default='', max_length=255, blank=True)
     geojson = GeometryField(blank=True, null=True, verbose_name=_('area'))
-
+    organization = models.ForeignKey(
+        Organization,
+        verbose_name=_('organization'),
+        related_name="hearings", blank=True, null=True
+    )
     labels = models.ManyToManyField("Label", verbose_name=_('labels'), blank=True)
     followers = models.ManyToManyField(
         settings.AUTH_USER_MODEL,

@@ -8,6 +8,7 @@ from democracy.enums import InitialSectionType
 from democracy.models import (
     Hearing, HearingComment, HearingImage, Label, Section, SectionComment, SectionImage, SectionType
 )
+from democracy.models.base import Organization
 from democracy.models.utils import copy_hearing
 from democracy.tests.utils import (
     assert_datetime_fuzzy_equal, get_data_from_response, get_geojson, get_hearing_detail_url
@@ -120,7 +121,7 @@ def test_8_get_detail_check_properties(api_client, default_hearing):
     assert set(data.keys()) >= {
         'abstract', 'borough', 'close_at', 'closed', 'created_at', 'id', 'images', 'labels',
         'n_comments', 'open_at', 'sections', 'servicemap_url',
-        'title'
+        'title', 'organization'
     }
 
 
@@ -210,6 +211,25 @@ def test_8_get_detail_labels(api_client):
     assert 'results' not in data
     assert len(data['labels']) is 3
     assert label_one.label in data['labels']
+
+
+@pytest.mark.django_db
+def test_8_get_detail_organization(api_client):
+    hearing = Hearing()
+    hearing.save()
+
+    organization = Organization(name='The department for squirrel welfare')
+    organization.save()
+
+    hearing.organization = organization
+    hearing.save()
+
+    response = api_client.get(get_detail_url(hearing.id))
+
+    data = get_data_from_response(response)
+
+    assert 'results' not in data
+    assert data['organization'] == organization.name
 
 
 @pytest.mark.django_db

@@ -116,6 +116,13 @@ class StringIdBaseModel(BaseModel):
         abstract = True
 
 
+class Organization(StringIdBaseModel):
+    name = models.CharField(verbose_name=_('name'), max_length=255, unique=True)
+    admin_users = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name='admin_organizations'
+    )
+
+
 class Commentable(models.Model):
     """
     Mixin for models which can be commented.
